@@ -17,23 +17,23 @@ public class MoveChecker {
         int columnFrom = from.charAt(1) - '1';
         switch(piece.getMovement()){
             case PAWNMOVE:
-                return getPawnmove(isComputer,rowFrom, columnFrom, board);
+                return getPawnmoves(isComputer,rowFrom, columnFrom, board);
             case KNIGHTMOVE:
-                return getKnightmove(isComputer,rowFrom, columnFrom, board);
+                return getKnightmoves(isComputer,rowFrom, columnFrom, board);
             case BISHOPMOVE:
-                return getBishopmove(isComputer,rowFrom, columnFrom, board);
+                return getBishopmoves(isComputer,rowFrom, columnFrom, board);
             case ROOKMOVE:
-                return getRookmove(isComputer,rowFrom, columnFrom, board);
+                return getRookmoves(isComputer,rowFrom, columnFrom, board);
             case QUEENMOVE:
-                return getQueenmove(isComputer,rowFrom, columnFrom, board);
+                return getQueenmoves(isComputer,rowFrom, columnFrom, board);
             case KINGMOVE:
-                return getKingmove(isComputer,rowFrom, columnFrom, board);
+                return getKingmoves(isComputer,rowFrom, columnFrom, board);
             default:
                 return new ArrayList<>();
         }
     }
 
-    private String getKingmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    private List<String> getKingmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves= new ArrayList<>();
         String move1;
         String move2;
@@ -62,10 +62,13 @@ public class MoveChecker {
         return moves;
     }
 
-    private String getQueenmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    private List<String> getQueenmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+        List<String>moves = new ArrayList<>(getBishopmoves(isComputer, rowFrom, columnFrom, board));
+        moves.addAll(getRookmoves(isComputer, rowFrom, columnFrom, board));
+        return moves;
     }
 
-    private String getRookmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    private List<String> getRookmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves = new ArrayList<>();
         List<Piece> pieces = new ArrayList<>();
         boolean stop = false;
@@ -87,8 +90,8 @@ public class MoveChecker {
          }
         }
     }
-    //filteren op de best methode ideale zet in if anders gewoon random zet 
-    private String getBishopmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+
+    private List<String> getBishopmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves = new ArrayList<>();
         List<Piece> pieces = new ArrayList<>();
         for(int i = 0; i<4; i++){
@@ -124,18 +127,69 @@ public class MoveChecker {
                 }
             }
         }
+
     }
 
     private List<String> getKnightmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves = new ArrayList<>();
         for(int i = 0; i<4; i++){
-            if()
+            String move1;
+            String move2;
+            if(i==0 && rowFrom + 1 < 8 && rowFrom - 1 > 0 && columnFrom + 2 < 8){
+                move1 = (rowFrom + 1) + (columnFrom + 2) + "";
+                move2 = (rowFrom - 1) + (columnFrom + 2) + "";
+                moves.add(move1);
+                moves.add(move2);
+            }
+            else if(i==1 && rowFrom + 2 < 8 && columnFrom + 1 < 8 && columnFrom > 0){
+                move1 = (rowFrom + 2) + (columnFrom + 1) + "";
+                move2 = (rowFrom + 2) + (columnFrom - 1) + "";
+                moves.add(move1);
+                moves.add(move2);
+            }
+            else if(i==2 && rowFrom + 1 < 8 && rowFrom - 1 > 0 && columnFrom - 2 > 0){
+                move1 = (rowFrom + 1) + (columnFrom - 2) + "";
+                move2 = (rowFrom - 1) + (columnFrom - 2) + "";
+                moves.add(move1);
+                moves.add(move2);
+            }
+            else{
+                move1 = (rowFrom - 2) + (columnFrom + 1) + "";
+                move2 = (rowFrom - 2) + (columnFrom - 1) + "";
+                moves.add(move1);
+                moves.add(move2);
+            }
         }
     }
 
     private List<String> getPawnmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPawnmoves'");
+        List<String>moves = new ArrayList<>();
+        if(isComputer){
+            if(columnFrom == 7){
+                moves.add( rowFrom + (columnFrom - 2) +"");
+            }
+            if(board[columnFrom - 1][rowFrom+1] instanceof Piece){
+                moves.add((rowFrom+1) + (columnFrom - 1) + "");
+            }
+            if(board[columnFrom - 1][rowFrom-1] instanceof Piece){
+                moves.add((rowFrom-1) + (columnFrom - 1) + "");
+            }
+            moves.add((rowFrom-1) + columnFrom + "");
+
+        }
+        if(!isComputer){
+        if(columnFrom == 0){
+            moves.add((columnFrom + 2) + rowFrom + "");
+        }
+        if(board[columnFrom + 1][rowFrom+1] instanceof Piece){
+            moves.add((columnFrom - 1) + rowFrom+1 + "");
+        }
+        if(board[columnFrom + 1][rowFrom-1] instanceof Piece){
+            moves.add((columnFrom - 1) + (rowFrom-1) + "");
+        }
+        moves.add((rowFrom+1) + columnFrom + "");
+    }
+
     }
 
 }
