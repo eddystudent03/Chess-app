@@ -7,30 +7,13 @@ public class Piece {
     private int team;
     private int importance;
     
-    public Piece(String type, boolean isComputer, int movement, int team, int importance){
+    public Piece(String type, boolean isComputer, int movement){
         setType(type);
         setComputer(isComputer);
         setMovement(movement);
-        setTeam(team);
-        setImportance(importance);
     }
-    private boolean isKing(){
+    public boolean isKing(){
         return type.equals("king")?true:false;
-    }
-    private void setImportance(int importance) {
-        this.importance = importance;
-    }
-
-    public int getImportance(){
-        return importance;
-    }
-
-    private void setTeam(int team) {
-        this.team = team;
-    }
-
-    public int getTeam(){
-        return this.team;
     }
 
     // Getters
@@ -47,15 +30,16 @@ public class Piece {
     }
 
     // Setters
-    public void setType(String type) {
+    private void setType(String type) {
         this.type = type;
     }
 
-    public void setComputer(boolean computer) {
+    private void setComputer(boolean computer) {
         isComputer = computer;
     }
 
-    public void setMovement(int movement) {
+    private void setMovement(int movement) {
         this.movement = movement;
     }
+
 }

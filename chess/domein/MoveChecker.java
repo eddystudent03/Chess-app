@@ -132,7 +132,7 @@ public class MoveChecker {
 
     }
 
-    public List<String> getKnightmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    public List<String> getKnightmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<Piece>pieces = new ArrayList<>();
         List<String>moves = new ArrayList<>();
         for(int i = 0; i<4; i++){
@@ -169,7 +169,7 @@ public class MoveChecker {
         }
     }
 
-    public List<String> getPawnmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    public List<String> getPawnmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves = new ArrayList<>();
         if(isComputer){
             if(columnFrom == 7){
@@ -200,12 +200,11 @@ public class MoveChecker {
     }
 
     private Piece getPiece(String from, Piece[][]board){
-        return board[Integer.parseInt(from.charAt(0))][Integer.parseInt(from.charAt(1))];
+        return board[(int) from.charAt(0)][(int) from.charAt(1)];
     }
 
     public List<String> giveKingThreats(Piece[][]board, int rowFrom, int columnFrom, Boolean isComputer){
         List<String>moves = new ArrayList<>();
-        in
         moves.add(getBishopmoves(isComputer, rowFrom, columnFrom, board).stream().filter(x -> getPiece(x, board) instanceof Piece).filter(x -> getPiece(x, board).isComputer() == isComputer).filter(x -> board[Integer.parseInt(x.charAt(0))][Integer.parseInt(x.charAt(1))].getType.equals("bishop")).collect(Collectors.toList()););
         moves.add(getKingpmoves(isComputer, rowFrom, columnFrom, board).stream().filter(x -> getPiece(x, board) instanceof Piece).filter(x -> getPiece(x, board).isComputer() == isComputer).filter(x -> board[Integer.parseInt(x.charAt(0))][Integer.parseInt(x.charAt(1))].getType.equals("king")).collect(Collectors.toList()););
         moves.add(getPawnpmoves(isComputer, rowFrom, columnFrom, board).stream().filter(x -> getPiece(x, board) instanceof Piece).filter(x -> getPiece(x, board).isComputer() == isComputer).filter(x -> board[Integer.parseInt(x.charAt(0))][Integer.parseInt(x.charAt(1))].getType.equals("pawn")).collect(Collectors.toList()););
@@ -214,14 +213,14 @@ public class MoveChecker {
     }
     
 
-    public List<String> protectKing( int rowFrom, int columnFrom, Piece[][]board, Boolean isComputer){
+    public List<String> giveAllthreats( int rowFrom, int columnFrom, Piece[][]board, Boolean isComputer){
         //kijken of de moves (alle pieces die koning kunnen pakken => (logica erachter is, koning get moves voor elke mogelijke piece dan gefiltered of die plaats een piece is van de tegenpartij)) 
         //kunnen worden bereikt door een van onze pieces. dus checken voor elke piece of die mogelijks de plaatsen in moves kan bereiken
         List<String>moves1 = new ArrayList<>();
         List<String>kingThreats = giveKingThreats(board, rowFrom, columnFrom, isComputer);
         for(int i = 0; i < 8 ; i++){
             for(int j = 0; j < 8; j++){
-                if(Board[i][j] instanceof Piece && Board[i][j].isComputer() == isComputer){
+                if(board[i][j] instanceof Piece && board[i][j].isComputer() == isComputer){
                     List<String> plays = giveMoves(isComputer, i + j + "", board);
                         for(int z = 0; z<kingThreats.size(); z++){
                              if(plays.contains(kingThreats.get(z)))
@@ -231,30 +230,22 @@ public class MoveChecker {
             }
         }
         //ordenen dat de piece met minste relevantie van voor staat
-        int row1 = moves1[0].charAt(0);
-        int column1 = moves1[0].charAt(1);
-        int smallest = board[row1][column1].getImportance();
-        String best = row1 + column1 +  "";
-        for(int x = 0; x < moves1.size(); x++){
-            int row = moves1[x].charAt(0);
-            int column = moves1[x].charAt(1);
-           if(board[row][column] < smallest){
-            smallest = board[row][column];
-            if(!doesMoveExposeKing(row, column, board))
-            best = row + column + "";
-            else
-            moves1.remove(x);
-           }
+        for(int i = 0; i<moves1.size();i++){
+            for(int j = 0; j < moves1.size() - i -1; j++){
+                if(board[(int) moves1.get(j).charAt(0)][(int) moves1.get(j).charAt(1)].getMovement() > board[(int) moves1.get(j + 1).charAt(0)][(int) moves1.get(j + 1).charAt(1)].getMovement()) {
+                    String temp = moves1.get(j + 1);
+                    moves1.set(j+1, moves1.get(j));
+                    moves1.set(j, temp);
+            }
+            }
         }
 
-        moves1.set(0, best);
-        //geen swap gedaan want is niet nodig
         return moves1;
 
     }
 
     public boolean doesMoveExposeKing(int rowFrom, int columnFrom, Piece[][]board, boolean isComputer){
-        return isKingThreatened(board, rowFrom, columnFrom, isComputer).size() == 0?true:false;
+        return giveAllthreats(rowFrom, columnFrom, board, isComputer).size() == 0?true:false;
     }
 
 }

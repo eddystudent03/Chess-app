@@ -1,8 +1,7 @@
 package chess.domein;
-
+import chess.domein.*;
 import java.util.List;
 
-import chess.domein.Piece;
 
 public class Board {
     private Piece[][] board = new Piece[8][8];
@@ -49,33 +48,33 @@ public class Board {
     public void movePiece(String from, String to){
         List<String>moves = mc.giveMoves(false, from, this.board)
         if(moves.contains(to)){
-            if(this.board[Integer.parseInt(to.charAt(0))][Integer.parseInt(to.charAt(0))] instanceof Piece){
-                userPieces.add(board[Integer.parseInt(to.charAt(0))][Integer.parseInt(to.charAt(0))])
+            if(this.board[(int) to.charAt(0)][(int) to.charAt(0)] instanceof Piece){
+                userPieces.add(board[(int) to.charAt(0) ][(int) to.charAt(0)]);
             }
-               if(this.board[Integer.parseInt(from.charAt(0))][Integer.parseInt(from.charAt(1))].isKing()){
-                    kingPlace = board[Integer.parseInt(to.charAt(0))][Integer.parseInt(to.charAt(0))];
+               if(this.board[(int)from.charAt(0)][(int) from.charAt(1)].isKing()){
+                    kingPlace = (int) to.charAt(0) + (int) to.charAt(0) + "";
                }
-               this.board[Integer.parseInt(to.charAt(0))][Integer.parseInt(to.charAt(0))] = board[Integer.parseInt(from.charAt(0))][Integer.parseInt(from.charAt(1))];
+               this.board[(int) to.charAt(0)][(int) to.charAt(0)] = board[(int) from.charAt(0)][(int) from.charAt(1)];
+               this.board[(int) from.charAt(0)][(int) from.charAt(1)] = null;
         }
-        this.board = board;
     }
 
     public void computerMove(String from, String to){
         List<String>moves = mc.giveMoves(true, from, board)
         if(moves.contains(to)){
-            if(board[Integer.parseInt(to.charAt(0))][Integer.parseInt(to.charAt(0))] instanceof Piece){
-                pcPieces.add(board[Integer.parseInt(to.charAt(0))][Integer.parseInt(to.charAt(0))])
+            if(board[(int) to.charAt(0)][(int) to.charAt(0)] instanceof Piece){
+                pcPieces.add(board[(int)to.charAt(0)][(int)to.charAt(0)]);
             }
-               if(board[Integer.parseInt(from.charAt(0))][Integer.parseInt(from.charAt(1))].isKing()){
-                kingPlaceComputer = board[Integer.parseInt(to.charAt(0))][Integer.parseInt(to.charAt(0))];
+               if(board[(int)from.charAt(0)][(int)from.charAt(1)].isKing()){
+                kingPlaceComputer = (int) to.charAt(0) + (int) to.charAt(0) + "";
                      }
-               board[Integer.parseInt(to.charAt(0))][Integer.parseInt(to.charAt(0))] = board[Integer.parseInt(from.charAt(0))][Integer.parseInt(from.charAt(1))];
+               this.board[(int) to.charAt(0)][(int) to.charAt(0)] = board[(int) from.charAt(0)][(int) from.charAt(1)];
+               this.board[(int) from.charAt(0)][(int) from.charAt(1)] = null;
         }
-        this.board = board;
     }
 
     public boolean isKingThreatened(int rowFrom, int columnFrom, boolean isComputer) {
-        return mc.isKingThreatened(board, rowFrom, columnFrom, isComputer).size() == 0? false: true;
+        return mc.doesMoveExposeKing(rowFrom, columnFrom, this.board, isComputer);
     }
     
     public String getKingPos(){
@@ -87,17 +86,17 @@ public class Board {
     }
 
     public List<String> protectKingMoves(){
-        int row = Integer.parseInt(kingPlaceComputer.charAt(0));
-        int column = Integer.parseInt(kingPlaceComputer.charAt(1));
-        mc.protectKing(row, column, board, true);
+        int row = (int) kingPlaceComputer.charAt(0);
+        int column = (int) kingPlaceComputer.charAt(1);
+        return mc.giveAllthreats(row, column, board, true);
     }
 
     public boolean computerProtectKing(){
         String move = protectKingMoves().get(0);
-        int rowTo = Integer.parseInt(move.charAt(0));
-        int columnTo = Integer.parseInt(move.charAt(1));
-        int rowFrom = Integer.parseInt(move.charAt(2));
-        int columnFrom = Integer.parseInt(move.charAt(3));
+        int rowTo = (int) move.charAt(0);
+        int columnTo = (int) move.charAt(1);
+        int rowFrom = (int) move.charAt(2);
+        int columnFrom = (int) move.charAt(3);
         String from = rowTo + columnTo + "";
         String to = rowFrom + columnFrom + "";
         if(!mc.doesMoveExposeKing(rowFrom, columnFrom, board, false)){
@@ -107,11 +106,11 @@ public class Board {
         return false;
     }
 
-    public void protectMove(String from, String to){
-        int row = Integer.parseInt(kingPlaceComputer.charAt(0));
-        int column = Integer.parseInt(kingPlaceComputer.charAt(1));
+    public boolean protectMove(String from, String to){
+        int row = (int) kingPlaceComputer.charAt(0);
+        int column = (int) kingPlaceComputer.charAt(1);
         String fullmove = from + to + "";
-        if(mc.protectKing(row, column, board, false).contains(fullmove) && !mc.doesMoveExposeKing(row, column, board, false)){
+        if(mc.giveAllthreats(row, column, board, false).contains(fullmove) && !mc.doesMoveExposeKing(row, column, board, false)){
             movePiece(from, to);
             return true;
         }
