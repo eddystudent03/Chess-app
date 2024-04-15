@@ -14,7 +14,9 @@ public class Piece {
         setTeam(team);
         setImportance(importance);
     }
-
+    private boolean isKing(){
+        return type.equals("king")?true:false;
+    }
     private void setImportance(int importance) {
         this.importance = importance;
     }

@@ -1,7 +1,9 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import chess.domein.Board;
 import chess.domein.Piece;
 
 public class MoveChecker {
@@ -12,10 +14,10 @@ public class MoveChecker {
     private static final int QUEENMOVE = 5;
     private static final int KINGMOVE = 6; 
 
-    public String giveMove(Boolean isComputer,String from, Piece[][] board, Piece piece){
-        int rowFrom =  from.charAt(0) - 'a';
-        int columnFrom = from.charAt(1) - '1';
-        switch(piece.getMovement()){
+    public List<String> giveMoves(Boolean isComputer,String from, Piece[][] board){
+        int rowFrom =  from.charAt(0);
+        int columnFrom = from.charAt(1);
+        switch(board[rowFrom][columnFrom].getMovement()){
             case PAWNMOVE:
                 return getPawnmoves(isComputer,rowFrom, columnFrom, board);
             case KNIGHTMOVE:
@@ -33,7 +35,7 @@ public class MoveChecker {
         }
     }
 
-    private List<String> getKingmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    public List<String> getKingmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves= new ArrayList<>();
         String move1;
         String move2;
@@ -62,13 +64,13 @@ public class MoveChecker {
         return moves;
     }
 
-    private List<String> getQueenmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    public List<String> getQueenmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves = new ArrayList<>(getBishopmoves(isComputer, rowFrom, columnFrom, board));
         moves.addAll(getRookmoves(isComputer, rowFrom, columnFrom, board));
         return moves;
     }
 
-    private List<String> getRookmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    public List<String> getRookmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves = new ArrayList<>();
         List<Piece> pieces = new ArrayList<>();
         boolean stop = false;
@@ -91,7 +93,7 @@ public class MoveChecker {
         }
     }
 
-    private List<String> getBishopmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    public List<String> getBishopmoves(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves = new ArrayList<>();
         List<Piece> pieces = new ArrayList<>();
         for(int i = 0; i<4; i++){
@@ -130,7 +132,8 @@ public class MoveChecker {
 
     }
 
-    private List<String> getKnightmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    public List<String> getKnightmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+        List<Piece>pieces = new ArrayList<>();
         List<String>moves = new ArrayList<>();
         for(int i = 0; i<4; i++){
             String move1;
@@ -140,6 +143,10 @@ public class MoveChecker {
                 move2 = (rowFrom - 1) + (columnFrom + 2) + "";
                 moves.add(move1);
                 moves.add(move2);
+                if(board[(rowFrom + 1)][(columnFrom + 2)] instanceof Piece && board[(rowFrom + 1)][(columnFrom + 2)].isComputer() = isComputer)
+                {
+                    
+                }
             }
             else if(i==1 && rowFrom + 2 < 8 && columnFrom + 1 < 8 && columnFrom > 0){
                 move1 = (rowFrom + 2) + (columnFrom + 1) + "";
@@ -162,7 +169,7 @@ public class MoveChecker {
         }
     }
 
-    private List<String> getPawnmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
+    public List<String> getPawnmove(Boolean isComputer, int rowFrom, int columnFrom, Piece[][] board) {
         List<String>moves = new ArrayList<>();
         if(isComputer){
             if(columnFrom == 7){
@@ -190,6 +197,64 @@ public class MoveChecker {
         moves.add((rowFrom+1) + columnFrom + "");
     }
 
+    }
+
+    private Piece getPiece(String from, Piece[][]board){
+        return board[Integer.parseInt(from.charAt(0))][Integer.parseInt(from.charAt(1))];
+    }
+
+    public List<String> giveKingThreats(Piece[][]board, int rowFrom, int columnFrom, Boolean isComputer){
+        List<String>moves = new ArrayList<>();
+        in
+        moves.add(getBishopmoves(isComputer, rowFrom, columnFrom, board).stream().filter(x -> getPiece(x, board) instanceof Piece).filter(x -> getPiece(x, board).isComputer() == isComputer).filter(x -> board[Integer.parseInt(x.charAt(0))][Integer.parseInt(x.charAt(1))].getType.equals("bishop")).collect(Collectors.toList()););
+        moves.add(getKingpmoves(isComputer, rowFrom, columnFrom, board).stream().filter(x -> getPiece(x, board) instanceof Piece).filter(x -> getPiece(x, board).isComputer() == isComputer).filter(x -> board[Integer.parseInt(x.charAt(0))][Integer.parseInt(x.charAt(1))].getType.equals("king")).collect(Collectors.toList()););
+        moves.add(getPawnpmoves(isComputer, rowFrom, columnFrom, board).stream().filter(x -> getPiece(x, board) instanceof Piece).filter(x -> getPiece(x, board).isComputer() == isComputer).filter(x -> board[Integer.parseInt(x.charAt(0))][Integer.parseInt(x.charAt(1))].getType.equals("pawn")).collect(Collectors.toList()););
+        moves.add(getRookpmoves(isComputer, rowFrom, columnFrom, board).stream().filter(x -> getPiece(x, board) instanceof Piece).filter(x -> getPiece(x, board).isComputer() == isComputer).filter(x -> board[Integer.parseInt(x.charAt(0))][Integer.parseInt(x.charAt(1))].getType.equals("rook")).collect(Collectors.toList()););
+        return moves;
+    }
+    
+
+    public List<String> protectKing( int rowFrom, int columnFrom, Piece[][]board, Boolean isComputer){
+        //kijken of de moves (alle pieces die koning kunnen pakken => (logica erachter is, koning get moves voor elke mogelijke piece dan gefiltered of die plaats een piece is van de tegenpartij)) 
+        //kunnen worden bereikt door een van onze pieces. dus checken voor elke piece of die mogelijks de plaatsen in moves kan bereiken
+        List<String>moves1 = new ArrayList<>();
+        List<String>kingThreats = giveKingThreats(board, rowFrom, columnFrom, isComputer);
+        for(int i = 0; i < 8 ; i++){
+            for(int j = 0; j < 8; j++){
+                if(Board[i][j] instanceof Piece && Board[i][j].isComputer() == isComputer){
+                    List<String> plays = giveMoves(isComputer, i + j + "", board);
+                        for(int z = 0; z<kingThreats.size(); z++){
+                             if(plays.contains(kingThreats.get(z)))
+                                moves1.add(kingThreats.get(z) + i + j + "");
+                        }            
+                }
+            }
+        }
+        //ordenen dat de piece met minste relevantie van voor staat
+        int row1 = moves1[0].charAt(0);
+        int column1 = moves1[0].charAt(1);
+        int smallest = board[row1][column1].getImportance();
+        String best = row1 + column1 +  "";
+        for(int x = 0; x < moves1.size(); x++){
+            int row = moves1[x].charAt(0);
+            int column = moves1[x].charAt(1);
+           if(board[row][column] < smallest){
+            smallest = board[row][column];
+            if(!doesMoveExposeKing(row, column, board))
+            best = row + column + "";
+            else
+            moves1.remove(x);
+           }
+        }
+
+        moves1.set(0, best);
+        //geen swap gedaan want is niet nodig
+        return moves1;
+
+    }
+
+    public boolean doesMoveExposeKing(int rowFrom, int columnFrom, Piece[][]board, boolean isComputer){
+        return isKingThreatened(board, rowFrom, columnFrom, isComputer).size() == 0?true:false;
     }
 
 }
